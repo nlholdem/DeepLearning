@@ -1,0 +1,108 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+
+"""
+
+__author__ = 'Paul Miller <paulymiller@gmail.com>'
+__status__ = 'Prototype'
+__application__ = 'soma'
+__version__ = '0.0.1'
+__date__ = '01-12-2016'
+__copyright__ = 'Copyright 2015, Soma'
+
+import os
+import sys, getopt
+import glob
+
+import pymysql
+
+from sqlalchemy import create_engine
+from sqlalchemy import ForeignKey, Column, select, and_
+from sqlalchemy import Integer, String, DateTime
+from sqlalchemy.orm import relationship, backref, column_property
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
+# initialize mapper Base
+Base = declarative_base()
+
+
+
+
+#class Image(Base):
+#    __tablename__ = 'images'
+#
+#    id = Column(Integer, primary_key=True)
+#
+#    name = Column(String)
+#    path = Column(String)
+#    width = Column(Integer)
+#    height = Column(Integer)
+#
+#    @classmethod
+#    def _get_session(obj):
+#        return Session.object_session(obj)
+#
+#    def _get_session(self):
+#        return Session.object_session(self)
+
+class MyImage(Base):
+    __tablename__ = 'images'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50))
+    path = Column(String(200))
+    width = Column(Integer)
+    height = Column(Integer)
+    def __repr__(self):
+       return "<User(name='%s', path='%s', width='%d', height='%d')>" % (
+                            self.name, self.path, self.width, self.height)
+
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    fullname = Column(String(200))
+    password = Column(String(50))
+    def __repr__(self):
+       return "<User(name='%s', fullname='%s', password='%s')>" % (
+                            self.name, self.fullname, self.password)
+
+def main(argv):
+
+    if len(argv) < 1:
+        print("Usage: mediadb filename_pattern")
+        print("E.g. mediadb /home/paul/Images/\*.jpg (remember to escape wildcards and spaces!)")
+
+    else:
+
+        fileList = glob.glob(argv[0])
+#        fileList = glob.glob('/media/paul/New Volume/Users/paul/Documents/Gobo/Volumes/Shares/spinmaster/CapturedCarTracking/20160713/*.png')
+        print("found ", len(fileList), " files")
+
+#        for f in fileList:
+#            print os.path.basename(f)
+#            print os.path.dirname(f)
+
+    engine = create_engine("mysql+pymysql://soma:amarillo@localhost/Soma")
+    conn = engine.connect()
+
+    session_maker = sessionmaker(bind=engine, autoflush=False)
+
+    MyImage.__table__
+    print (User.__table__)
+    Base.metadata.create_all(engine)
+# define the object mapping
+
+
+
+# shouldn't this be in a 'try' block?
+
+#    print glob.glob
+
+
+
+if (__name__ == '__main__'):
+    main(sys.argv[1:])

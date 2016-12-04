@@ -9,7 +9,9 @@ hidden layers making the architecture deep. The tutorial will also tackle
 the problem of MNIST digit classification.
 
 
-First attempt: add another hidden layer of the same size
+Second attempt: divid the (single) hidden layer into purely-positive and purely-negative weights 
+i.e. positive ones only have output weights > 0; negative has output weights < 0
+
 
 This weirdly uses LogisticRegression to handle the top layer (why??); the hidden layers 
 have tanh activation function. 
@@ -40,7 +42,7 @@ import theano
 import theano.tensor as T
 
 
-from logistic_sgd import LogisticRegression, load_data
+from my_logistic_sgd import LogisticRegression, load_data
 
 
 # start-snippet-1
@@ -227,7 +229,7 @@ class MLP(object):
         self.input = input
 
 
-def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=10,
+def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=20,
              dataset='mnist.pkl.gz', batch_size=20, n_hidden=500):
     """
     Demonstrate stochastic gradient descent optimization for a multilayer
@@ -291,6 +293,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=10,
 
     classifier.hiddenLayer.printWts()
     classifier.hiddenLayer2.printWts()
+    classifier.logRegressionLayer.printWts()
 
     # start-snippet-4
     # the cost we minimize during training is the negative log likelihood of
@@ -439,6 +442,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=10,
 
     classifier.hiddenLayer.printWts()
     classifier.hiddenLayer2.printWts()
+    classifier.logRegressionLayer.printWts()
 
 
 

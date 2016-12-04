@@ -1,0 +1,40 @@
+... loading data
+... building the model
+** Model weights: **
+mean of Weights Matrix:  -6.35461e-05  STD:  0.0394253
+(784, 500)
+(500,)
+** Model weights: **
+mean of Weights Matrix:  8.01995e-05  STD:  0.0447826
+(500, 500)
+(500,)
+... training
+epoch 1, minibatch 2500/2500, validation error 9.090000 %
+     epoch 1, minibatch 2500/2500, test error of best model 9.510000 %
+epoch 2, minibatch 2500/2500, validation error 7.980000 %
+     epoch 2, minibatch 2500/2500, test error of best model 8.330000 %
+epoch 3, minibatch 2500/2500, validation error 7.180000 %
+     epoch 3, minibatch 2500/2500, test error of best model 7.650000 %
+epoch 4, minibatch 2500/2500, validation error 6.650000 %
+     epoch 4, minibatch 2500/2500, test error of best model 7.100000 %
+epoch 5, minibatch 2500/2500, validation error 5.930000 %
+     epoch 5, minibatch 2500/2500, test error of best model 6.490000 %
+epoch 6, minibatch 2500/2500, validation error 5.270000 %
+     epoch 6, minibatch 2500/2500, test error of best model 5.940000 %
+epoch 7, minibatch 2500/2500, validation error 4.850000 %
+     epoch 7, minibatch 2500/2500, test error of best model 5.570000 %
+epoch 8, minibatch 2500/2500, validation error 4.500000 %
+     epoch 8, minibatch 2500/2500, test error of best model 5.160000 %
+epoch 9, minibatch 2500/2500, validation error 4.200000 %
+     epoch 9, minibatch 2500/2500, test error of best model 4.780000 %
+epoch 10, minibatch 2500/2500, validation error 3.930000 %
+     epoch 10, minibatch 2500/2500, test error of best model 4.430000 %
+Optimization complete. Best validation score of 3.930000 % obtained at iteration 25000, with test performance 4.430000 %
+** Model weights: **
+mean of Weights Matrix:  5.55601e-05  STD:  0.0388056
+(784, 500)
+(500,)
+** Model weights: **
+mean of Weights Matrix:  8.11115e-05  STD:  0.0463604
+(500, 500)
+(500,)

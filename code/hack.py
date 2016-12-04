@@ -1,0 +1,7 @@
+from PIL import Image
+import numpy
+
+image = Image.open('/home/paul/Pictures/Ian-Wright-2.jpg', 'r').getdata()
+
+imageArray = numpy.fromstring(image.tostring(), dtype='uint8', count=-1, sep='').reshape(image.shape + (len(image.getbands()),))
+

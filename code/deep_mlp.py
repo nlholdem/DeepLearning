@@ -11,6 +11,9 @@ the problem of MNIST digit classification.
 
 First attempt: add another hidden layer of the same size
 
+This weirdly uses LogisticRegression to handle the top layer (why??); the hidden layers 
+have tanh activation function. 
+
 .. math::
 
     f(x) = G( b^{(2)} + W^{(2)}( s( b^{(1)} + W^{(1)} x))),
@@ -113,6 +116,20 @@ class HiddenLayer(object):
         # parameters of the model
         self.params = [self.W, self.b]
 
+    def printWts(self):
+        print('** Model weights: **')
+
+        tempWts = self.W.get_value()
+
+#        print(self.W.get_value().shape)
+        print('mean of Weights Matrix: ', tempWts.mean(), ' STD: ', tempWts.std())
+
+        print(tempWts.shape)
+        print(self.b.get_value().shape)
+#        print(self.W.get_value())
+#        print(tempWts)
+#        print(self.b.get_value())
+
 
 # start-snippet-2
 class MLP(object):
@@ -163,16 +180,16 @@ class MLP(object):
 
         self.hiddenLayer2 = HiddenLayer(
             rng=rng,
-            input=input,
+            input=self.hiddenLayer.output,
             n_in=n_hidden,
-            n_out=n_out,
+            n_out=n_hidden,
             activation=T.tanh
         )
 
         # The logistic regression layer gets as input the hidden units
         # of the hidden layer
         self.logRegressionLayer = LogisticRegression(
-            input=self.hiddenLayer.output,
+            input=self.hiddenLayer2.output,
             n_in=n_hidden,
             n_out=n_out
         )
@@ -181,6 +198,7 @@ class MLP(object):
         # be small
         self.L1 = (
             abs(self.hiddenLayer.W).sum()
+            + abs(self.hiddenLayer2.W).sum()
             + abs(self.logRegressionLayer.W).sum()
         )
 
@@ -202,15 +220,15 @@ class MLP(object):
 
         # the parameters of the model are the parameters of the two layer it is
         # made out of
-        self.params = self.hiddenLayer.params + self.logRegressionLayer.params
+        self.params = self.hiddenLayer.params + self.hiddenLayer2.params + self.logRegressionLayer.params
         # end-snippet-3
 
         # keep track of model input
         self.input = input
 
 
-def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=100,
-             dataset='mnist.pkl.gz', batch_size=20, n_hidden=5):
+def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=200,
+             dataset='mnist.pkl.gz', batch_size=20, n_hidden=500):
     """
     Demonstrate stochastic gradient descent optimization for a multilayer
     perceptron
@@ -270,6 +288,9 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=100,
         n_hidden=n_hidden,
         n_out=10
     )
+
+    classifier.hiddenLayer.printWts()
+    classifier.hiddenLayer2.printWts()
 
     # start-snippet-4
     # the cost we minimize during training is the negative log likelihood of
@@ -415,6 +436,10 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=100,
     print(('The code for file ' +
            os.path.split(__file__)[1] +
            ' ran for %.2fm' % ((end_time - start_time) / 60.)), file=sys.stderr)
+
+    classifier.hiddenLayer.printWts()
+    classifier.hiddenLayer2.printWts()
+
 
 
 if __name__ == '__main__':

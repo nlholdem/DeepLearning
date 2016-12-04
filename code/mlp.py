@@ -110,6 +110,14 @@ class HiddenLayer(object):
         # parameters of the model
         self.params = [self.W, self.b]
 
+    def printWts(self):
+        print('** Model weights: **')
+
+        print(self.W.get_value().shape)
+        print(self.b.get_value().shape)
+        print(self.W.get_value())
+        print(self.b.get_value())
+
 
 # start-snippet-2
 class MLP(object):
@@ -260,6 +268,8 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
         n_out=10
     )
 
+    classifier.hiddenLayer.printWts()
+
     # start-snippet-4
     # the cost we minimize during training is the negative log likelihood of
     # the model plus the regularization terms (L1 and L2); cost is expressed
@@ -404,6 +414,8 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     print(('The code for file ' +
            os.path.split(__file__)[1] +
            ' ran for %.2fm' % ((end_time - start_time) / 60.)), file=sys.stderr)
+
+    classifier.hiddenLayer.printWts()
 
 
 if __name__ == '__main__':
