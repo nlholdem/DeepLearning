@@ -5,6 +5,10 @@
 
 """
 
+# Basic test of using a mysql db to specify the inputs rather than just traversing a directory. 
+# Note that this is mysql-specic - if you need completely generic code, head to http://docs.sqlalchemy.org/en/latest/orm/tutorial.html
+# to see how to make your code completely db-agnostic
+
 __author__ = 'Paul Miller <paulymiller@gmail.com>'
 __status__ = 'Prototype'
 __application__ = 'soma'
@@ -48,7 +52,7 @@ Base = declarative_base()
 #    def _get_session(self):
 #        return Session.object_session(self)
 
-class MyImage(Base):
+class Image(Base):
     __tablename__ = 'images'
     id = Column(Integer, primary_key=True)
     name = Column(String(50))
@@ -59,7 +63,7 @@ class MyImage(Base):
        return "<User(name='%s', path='%s', width='%d', height='%d')>" % (
                             self.name, self.path, self.width, self.height)
 
-
+# Note: mysql requires you to specify a max length for varchar fields (i.e. the Strings below)
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
@@ -89,11 +93,30 @@ def main(argv):
     engine = create_engine("mysql+pymysql://soma:amarillo@localhost/Soma")
     conn = engine.connect()
 
-    session_maker = sessionmaker(bind=engine, autoflush=False)
 
-    MyImage.__table__
+    Session = sessionmaker()
+    Session.configure(bind=engine)
+    session = Session()
+
+    Image.__table__
     print (User.__table__)
-    Base.metadata.create_all(engine)
+
+    user1 = User(name='Pug', fullname='Puggy Pearson', password='passwd')
+    print(user1.__repr__())
+    session.add(user1)
+    tempUser = session.query(User).filter_by(name='Pug').first()
+    print(tempUser is user1)
+    user2 = User(name='Doyle', fullname='Texas Dolly', password='passwd')
+    session.add(user2)
+    print(session.dirty)
+    print(session.new)
+
+
+
+#    Base.metadata.create_all(engine)
+
+
+
 # define the object mapping
 
 

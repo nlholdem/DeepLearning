@@ -5,6 +5,12 @@
 
 """
 
+# Basic test of using a mysql db to specify the inputs rather than just traversing a directory. 
+# Note that this is mysql-specific - if you need completely generic code, head to:
+# http://docs.sqlalchemy.org/en/latest/orm/tutorial.html
+# to see how to make your code completely db-agnostic
+# Blah de blah blah
+
 __author__ = 'Paul Miller <paulymiller@gmail.com>'
 __status__ = 'Prototype'
 __application__ = 'soma'
@@ -29,9 +35,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-
-
-#class Image(Base):
+# class Image(Base):
 #    __tablename__ = 'images'
 #
 #    id = Column(Integer, primary_key=True)
@@ -48,24 +52,26 @@ Base = declarative_base()
 #    def _get_session(self):
 #        return Session.object_session(self)
 
-class MyImage(Base):
+class Image(Base):
     __tablename__ = 'images'
     id = Column(Integer, primary_key=True)
     name = Column(String(50))
     path = Column(String(200))
     width = Column(Integer)
     height = Column(Integer)
+
     def __repr__(self):
        return "<User(name='%s', path='%s', width='%d', height='%d')>" % (
                             self.name, self.path, self.width, self.height)
 
-
+# Note: mysql requires you to specify a max length for varchar fields (i.e. the Strings below)
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
     fullname = Column(String(200))
     password = Column(String(50))
+
     def __repr__(self):
        return "<User(name='%s', fullname='%s', password='%s')>" % (
                             self.name, self.fullname, self.password)
@@ -89,11 +95,29 @@ def main(argv):
     engine = create_engine("mysql+pymysql://soma:amarillo@localhost/Soma")
     conn = engine.connect()
 
-    session_maker = sessionmaker(bind=engine, autoflush=False)
+    Session = sessionmaker()
+    Session.configure(bind=engine)
+    session = Session()
 
-    MyImage.__table__
     print (User.__table__)
-    Base.metadata.create_all(engine)
+
+    user1 = User(name='Pug', fullname='Puggy Pearson', password='passwd')
+    print(user1.__repr__())
+    session.add(user1)
+    tempUser = session.query(User).filter_by(name='Pug').first()
+    print(tempUser is user1)
+    user2 = User(name='Doyle', fullname='Texas Dolly', password='passwd')
+#    session.add(user2)
+
+    print(session.dirty)
+    print(session.new)
+
+
+
+#    Base.metadata.create_all(engine)
+
+
+
 # define the object mapping
 
 
@@ -101,7 +125,6 @@ def main(argv):
 # shouldn't this be in a 'try' block?
 
 #    print glob.glob
-
 
 
 if (__name__ == '__main__'):
