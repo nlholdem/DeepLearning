@@ -9,7 +9,7 @@
 # Note that this is mysql-specific - if you need completely generic code, head to:
 # http://docs.sqlalchemy.org/en/latest/orm/tutorial.html
 # to see how to make your code completely db-agnostic
-# Blah de blah blah
+
 
 __author__ = 'Paul Miller <paulymiller@gmail.com>'
 __status__ = 'Prototype'
@@ -86,7 +86,7 @@ def main(argv):
 
         fileList = glob.glob(argv[0])
 #        fileList = glob.glob('/media/paul/New Volume/Users/paul/Documents/Gobo/Volumes/Shares/spinmaster/CapturedCarTracking/20160713/*.png')
-        print("found ", len(fileList), " files")
+        print "found ", len(fileList), " files"
 
 #        for f in fileList:
 #            print os.path.basename(f)
@@ -96,25 +96,47 @@ def main(argv):
     conn = engine.connect()
 
     Session = sessionmaker()
-    Session.configure(bind=engine)
+    Session.configure(bind=engine, autoflush=False)
     session = Session()
 
-    print (User.__table__)
+    # Slightly mysterious method that creates tables if they do not exist
+    # Not clear yet how it knows which tables to create
+
+    Base.metadata.create_all(engine)
+
+    print "User.__table__: ", User.__table__
 
     user1 = User(name='Pug', fullname='Puggy Pearson', password='passwd')
     print(user1.__repr__())
     session.add(user1)
+    print "Dirty? ", session.dirty
     tempUser = session.query(User).filter_by(name='Pug').first()
-    print(tempUser is user1)
+    print "tempUser :", tempUser
+    print "user1: ", user1
     user2 = User(name='Doyle', fullname='Texas Dolly', password='passwd')
 #    session.add(user2)
 
-    print(session.dirty)
-    print(session.new)
+    print "Dirty? ", session.dirty
+    print "session.new? ", session.new
+
+    session.commit()
+    print user1.id
+    fake_user = User(name='fakeuser', fullname='Invalid', password='12345')
+    session.add(fake_user)
+    print user1.name
+    user1.name = 'Eddy'
+    print "user1 name: ", user1.name
+    print "Dirty? ", session.dirty
+    print "session.new? ", session.new
+    print "fake_user in session? ", fake_user in session
+
+    print "query res: ", session.query(User).filter(User.name.in_(['Eddy', 'fakeuser'])).all()
+    tempUser = session.query(User).filter_by(name='Eddy').first()
+    print "tempuser: ", tempUser
+    session.rollback()
+    print "user1 name: ", user1.name
 
 
-
-#    Base.metadata.create_all(engine)
 
 
 
