@@ -25,7 +25,7 @@ import glob
 import pymysql
 
 from sqlalchemy import create_engine
-from sqlalchemy import ForeignKey, Column, select, and_
+from sqlalchemy import ForeignKey, Column, select, and_, text
 from sqlalchemy import Integer, String, DateTime
 from sqlalchemy.orm import relationship, backref, column_property
 from sqlalchemy.orm import sessionmaker
@@ -64,6 +64,13 @@ class Image(Base):
        return "<User(name='%s', path='%s', width='%d', height='%d')>" % (
                             self.name, self.path, self.width, self.height)
 
+    # init is not really a constructor; it is literally an initialiser of instances
+    def __init__(self, name="", path="", width=1, height=1):
+        self.name = name;
+        self.path = path
+        self.width = width
+        self.height = height
+
 # Note: mysql requires you to specify a max length for varchar fields (i.e. the Strings below)
 class User(Base):
     __tablename__ = 'users'
@@ -88,9 +95,15 @@ def main(argv):
 #        fileList = glob.glob('/media/paul/New Volume/Users/paul/Documents/Gobo/Volumes/Shares/spinmaster/CapturedCarTracking/20160713/*.png')
         print "found ", len(fileList), " files"
 
-#        for f in fileList:
+        imagelist = []
+        for f in fileList:
+            i = Image(name=os.path.basename(f), path=os.path.dirname(f))
+            imagelist.append(i)
 #            print os.path.basename(f)
 #            print os.path.dirname(f)
+    print "length of imagelist: ", len(imagelist)
+    for image in imagelist:
+        print image.name
 
     engine = create_engine("mysql+pymysql://soma:amarillo@localhost/Soma")
     conn = engine.connect()
@@ -103,6 +116,7 @@ def main(argv):
     # Not clear yet how it knows which tables to create
 
     Base.metadata.create_all(engine)
+    session.add_all(imagelist)
 
     print "User.__table__: ", User.__table__
 
@@ -121,7 +135,7 @@ def main(argv):
 
     session.commit()
     print user1.id
-    fake_user = User(name='fakeuser', fullname='Invalid', password='12345')
+    fake_user = User(name='Dummy', fullname='Invalid', password='12345')
     session.add(fake_user)
     print user1.name
     user1.name = 'Eddy'
@@ -129,17 +143,47 @@ def main(argv):
     print "Dirty? ", session.dirty
     print "session.new? ", session.new
     print "fake_user in session? ", fake_user in session
+    session.commit()
+    # Cannot rollback after committing!
 
-    print "query res: ", session.query(User).filter(User.name.in_(['Eddy', 'fakeuser'])).all()
+    for instance in session.query(User).filter(User.name.in_(['Pug', 'Eddy', 'Dummy'])).all():
+        print instance.name, instance.fullname
+    # 'filter' is just a more powerful version of 'filter_by'
+
     tempUser = session.query(User).filter_by(name='Eddy').first()
     print "tempuser: ", tempUser
     session.rollback()
     print "user1 name: ", user1.name
+    print "fake_user in session? ", fake_user in session
 
+    print "** Let's try a simple select command"
 
+    # for instance in session.query(User). order_by(User.id):
+    #     print instance, instance.name, instance.fullname
+    #
+    # print "** And now another select"
+    #
+    # for name, fullname in session.query(User.name, User.fullname):
+    #     print name, fullname
+    #
+    # # The 'name_label' string just gives a name for the element of row that we query later.
+    # for row in session.query(User.name.label('name_label')).all():
+    #     print row
+    #
+    # for u in session.query(User).order_by(User.id)[1:4]:
+    #     print u
 
+    for name in session.query(User.name).\
+        filter(User.fullname.in_(['Puggy Pearson', 'Invalid'])):
+        print name
 
+    stmt = text("SELECT name, id, fullname, password "
+                "FROM users where name=:name")
+    stmt = stmt.columns(User.id, User.name, User.fullname, User.password)
+    res = session.query(User).from_statement(stmt).params(name='Eddy').all()
 
+    print "stmt: ", stmt
+    print "res: ", res
 # define the object mapping
 
 
