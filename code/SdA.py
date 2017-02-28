@@ -46,6 +46,8 @@ from logistic_sgd import LogisticRegression, load_data
 from mlp import HiddenLayer
 from dA import dA
 
+import matplotlib.pyplot as plt
+
 
 # start-snippet-1
 class SdA(object):
@@ -229,6 +231,7 @@ class SdA(object):
             # append `fn` to the list of functions
             pretrain_fns.append(fn)
 
+
         return pretrain_fns
 
     def build_finetune_functions(self, datasets, batch_size, learning_rate):
@@ -373,6 +376,21 @@ def test_SdA(finetune_lr=0.1, pretraining_epochs=15,
         hidden_layers_sizes=[1000, 1000, 1000],
         n_outs=10
     )
+    plt.figure(1)
+#    n, bins, patches = plt.hist(sda.params, 100, normed=1, facecolor='green')
+
+    for par in sda.params:
+        print (par.get_value())
+    hack = numpy.asarray(sda.params)
+#    n, bins, patches = plt.hist(hack.get_value, 100, normed=1, facecolor='green')
+    # n, bins, patches = plt.hist(numpy.reshape(hack, hack.size), 100, normed=1, facecolor='green')
+    print("params have the following dims: ", hack.shape)
+    print("params have the following values: ", hack)
+
+    #    print(sda.params.get_value())
+
+
+
     # end-snippet-3 start-snippet-4
     #########################
     # PRETRAINING THE MODEL #
@@ -385,6 +403,18 @@ def test_SdA(finetune_lr=0.1, pretraining_epochs=15,
     start_time = timeit.default_timer()
     ## Pre-train layer-wise
     corruption_levels = [.1, .2, .3]
+
+    # get the training, validation and testing function for the model
+    print('... getting the finetuning functions')
+    train_fn, validate_model, test_model = sda.build_finetune_functions(
+        datasets=datasets,
+        batch_size=batch_size,
+        learning_rate=finetune_lr
+    )
+
+
+
+
     for i in range(sda.n_layers):
         # go through pretraining epochs
         for epoch in range(pretraining_epochs):
@@ -405,14 +435,6 @@ def test_SdA(finetune_lr=0.1, pretraining_epochs=15,
     ########################
     # FINETUNING THE MODEL #
     ########################
-
-    # get the training, validation and testing function for the model
-    print('... getting the finetuning functions')
-    train_fn, validate_model, test_model = sda.build_finetune_functions(
-        datasets=datasets,
-        batch_size=batch_size,
-        learning_rate=finetune_lr
-    )
 
     print('... finetunning the model')
     # early-stopping parameters

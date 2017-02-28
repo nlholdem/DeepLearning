@@ -22,7 +22,7 @@ import os
 import sys, getopt
 import glob
 
-import pymysql
+#import pymysql
 
 from sqlalchemy import create_engine
 from sqlalchemy import ForeignKey, Column, select, and_, text
@@ -71,6 +71,7 @@ class Image(Base):
         self.width = width
         self.height = height
 
+
 # Note: mysql requires you to specify a max length for varchar fields (i.e. the Strings below)
 class User(Base):
     __tablename__ = 'users'
@@ -88,19 +89,17 @@ def main(argv):
     if len(argv) < 1:
         print("Usage: mediadb filename_pattern")
         print("E.g. mediadb /home/paul/Images/\*.jpg (remember to escape wildcards and spaces!)")
+        return
 
-    else:
 
-        fileList = glob.glob(argv[0])
-#        fileList = glob.glob('/media/paul/New Volume/Users/paul/Documents/Gobo/Volumes/Shares/spinmaster/CapturedCarTracking/20160713/*.png')
-        print "found ", len(fileList), " files"
+    fileList = glob.glob(argv[0])
+    print "found ", len(fileList), " files"
 
-        imagelist = []
-        for f in fileList:
-            i = Image(name=os.path.basename(f), path=os.path.dirname(f))
-            imagelist.append(i)
-#            print os.path.basename(f)
-#            print os.path.dirname(f)
+    imagelist = []
+    for f in fileList:
+        i = Image(name=os.path.basename(f), path=os.path.dirname(f))
+        imagelist.append(i)
+
     print "length of imagelist: ", len(imagelist)
     for image in imagelist:
         print image.name
@@ -116,7 +115,12 @@ def main(argv):
     # Not clear yet how it knows which tables to create
 
     Base.metadata.create_all(engine)
-    session.add_all(imagelist)
+#    session.add_all(imagelist)
+
+    # (probably) inefficient method for doing a conditional insertion
+    for img in imagelist:
+        if not session.query(Image).filter_by(name=img.name).first():
+            session.add(img)
 
     print "User.__table__: ", User.__table__
 
@@ -184,13 +188,6 @@ def main(argv):
 
     print "stmt: ", stmt
     print "res: ", res
-# define the object mapping
-
-
-
-# shouldn't this be in a 'try' block?
-
-#    print glob.glob
 
 
 if (__name__ == '__main__'):

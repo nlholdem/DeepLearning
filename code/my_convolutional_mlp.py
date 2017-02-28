@@ -4,6 +4,9 @@ from theano.tensor.nnet import conv2d
 
 import numpy
 
+import pylab
+from PIL import Image
+
 rng = numpy.random.RandomState(23450)
 
 # instantiate 4D tensor for input
@@ -62,11 +65,9 @@ f = theano.function([input], output)
 
 
 #import numpy
-import pylab
-from PIL import Image
 
 # open random image of dimensions 639x516
-img = Image.open(open('/home/paul/Pictures/macaca.jpg'))
+img = Image.open(open('/home/paul/Pictures/heartbeat3.jpg'))
 
 #imgT = Image.open(open('/home/paul/Pictures/macaca.jpg'))
 # dimensions are (height, width, channel)
@@ -85,4 +86,4 @@ pylab.gray();
 pylab.subplot(1, 3, 2); pylab.axis('off'); pylab.imshow(filtered_img[0, 0, :, :])
 pylab.subplot(1, 3, 3); pylab.axis('off'); pylab.imshow(filtered_img[0, 1, :, :])
 pylab.show()
-
+raw_input("press a key, dummy!")

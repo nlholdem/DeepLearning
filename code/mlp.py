@@ -110,6 +110,7 @@ class HiddenLayer(object):
         # parameters of the model
         self.params = [self.W, self.b]
 
+
     def printWts(self):
         print('** Model weights: **')
 

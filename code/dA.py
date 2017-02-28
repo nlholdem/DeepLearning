@@ -44,6 +44,8 @@ from theano.tensor.shared_randomstreams import RandomStreams
 
 from logistic_sgd import load_data
 from utils import tile_raster_images
+import matplotlib.pyplot as plt
+
 
 try:
     import PIL.Image as Image
@@ -156,6 +158,12 @@ class dA(object):
             )
             W = theano.shared(value=initial_W, name='W', borrow=True)
 
+            plt.figure(1)
+
+            n, bins, patches = plt.hist(numpy.reshape(initial_W, initial_W.size), 100, normed=1, facecolor='blue')
+
+
+
         if not bvis:
             bvis = theano.shared(
                 value=numpy.zeros(
@@ -191,6 +199,7 @@ class dA(object):
         else:
             self.x = input
 
+        #bundle up the params so we can easily find gradients wrt these variables
         self.params = [self.W, self.b, self.b_prime]
 
     def get_corrupted_input(self, input, corruption_level):
@@ -233,6 +242,12 @@ class dA(object):
     def get_cost_updates(self, corruption_level, learning_rate):
         """ This function computes the cost and the updates for one trainng
         step of the dA """
+
+        """Define the symbolic relationships between
+        variables
+        """
+
+        print ("** Cost updates **")
 
         tilde_x = self.get_corrupted_input(self.x, corruption_level)
         y = self.get_hidden_values(tilde_x)
@@ -314,6 +329,11 @@ def test_dA(learning_rate=0.1, training_epochs=15,
         learning_rate=learning_rate
     )
 
+    """The 'givens' below allows us to pick out one slice of the input matrix, and set the value of
+    x in the graph. This means that the graph will only have 'index' as an input.
+    This function uses the usual mechanims of mapping from inputs to costs, so the graph forces calculations of
+    all the intermediate symbolic variables"""
+
     train_da = theano.function(
         [index],
         cost,
@@ -350,6 +370,12 @@ def test_dA(learning_rate=0.1, training_epochs=15,
                            img_shape=(28, 28), tile_shape=(10, 10),
                            tile_spacing=(1, 1)))
     image.save('filters_corruption_0.png')
+
+    tempW = da.W.get_value()
+
+    plt.figure(2)
+    n, bins, patches = plt.hist(numpy.reshape(tempW, tempW.size), 100, normed=1, facecolor='green')
+
 
     # start-snippet-3
     #####################################
@@ -413,8 +439,13 @@ def test_dA(learning_rate=0.1, training_epochs=15,
     image.save('filters_corruption_30.png')
     # end-snippet-4
 
+    tempW = da.W.get_value()
+    plt.figure(3)
+    n, bins, patches = plt.hist(numpy.reshape(tempW, tempW.size), 100, normed=1, facecolor='green')
+    plt.show()
+
     os.chdir('../')
 
 
 if __name__ == '__main__':
-    test_dA()
+    test_dA(training_epochs=10)
